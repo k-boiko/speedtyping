@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Speedtest from Sh++</title>
+	<link rel="stylesheet" type="text/css" href="test.css">
+</head>
+<body>
+
+<div class="container type-speed-test-page">
+   <h1>&nbsp;</h1>
+    <h1 class="center">Тестирование скорости набора на <span id="selectedLanguage">русском</span> языке</h1>
+    <div class="center"><button class="btn" id="toggleLanguage">Пройти на <span id="antiSelectedLanguage">английском</span> языке</button></div>
+
+    <div id="testWelcome">
+        <p>
+            Скорость набора текста очень сильно влияет на скорость обучения. Быстро писать код - это круто.
+            Поэтому предлагаем вам проверить свою скорость.
+            Мы сгенерируем вам текст на выбранном языке.
+        </p>
+    </div>
+
+
+    <div id="resultsOfType" class="hidden">
+        <p>Нажатий на клавиши: <span class='typeresults' id="results1"></span></p>
+        <p>Допущено ошибок: <span class='typeresults' id="results2"></span></p>
+        <p>Знаков в минуту: <span class='typeresults' id="results3"></span></p>
+        <p>Выбранный язык: <span class="typeresults" id="results4"></span></p>
+        <button id="next" class='btn green'>Попробовать ещё раз</button>
+    </div>
+
+    <div id="testArea">
+        <div class="error-input-block">
+            <div class="typetest-error-block">
+                <div id="errorContainer" class="hidden">Ошибка</div>
+            </div>
+            <div class="input-block">
+                <input name="given" type="hidden" id="given">
+                <div class="typeTextHolder"></div>
+                <input type="text" id="my" name="typed" size="5">
+            </div>
+        </div>
+    </div>
+
+    <div id="cheatMsg" class="hidden">
+        <p>Мы настоятельно рекомендуем пройти этот тест честным путем. Попробуйте ещё раз!</p>
+        <button class='btn green' id="b1">НАЧАТЬ</button>
+    </div>
+
+    <div id="finalScore" class="hidden">
+        <p style="margin-top: 50px;"> Результат скорости набора (среднее значение из 3 попыток): <span class='typeresults' id="finalRezult1"></span></p>
+        <p>Среднее значение по количеству допущенных ошибок: <span class='typeresults' id="finalRezult2"></span></p>
+        <p>Спасибо!</p>
+    </div>
+</div>
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+	    var errors = 0;
+	    var keyPresses = 0;
+	    var rightPresses = 0;
+	    var text_en = "1234567890-=qw ertyuiop[]asdfghjkl;'\zxcvbnm,./!@#$%^&*()_+{}:\"<>?";
+	    var text_ru = "йцукенгшщзхъфывапр олджэячсмитьбюё1234567890-=.!\"№;%:?*()_+,"
+	    var text = text_ru;
+	    var finalSpeed = [];
+	    var finalErrors = [];
+	    var $my = $("#my");
+	    var $given = $("#given");
+	    var container = $(".typeTextHolder");
+	    var errSound = new Audio("./error.wav");
+
+	   
+
+	    function stopIt() {
+	        endTyping = new Date().getTime();
+	        totalTime = ((endTyping - startTyping) / 1000);
+	        spd = Math.round((words / totalTime) * 60);
+	        spdTwo = Math.round((rightPresses / totalTime) * 60);
+	        totalErrors = Math.round((errors / keyPresses) * 100);
+	        if (keyPresses < $given.val().length) {
+	            $('#testArea').hide();
+	            $('#cheatMsg').show();
+	        } else {
+	            finalSpeed.push(spdTwo);
+	            finalErrors.push(totalErrors);
+	            $('#testArea').hide();
+	            $('#resultsOfType').show();
+	            $('#results1').text(keyPresses);
+	            $('#results2').text(errors);
+	            $('#results3').text(spdTwo);
+	            $('#next').click(function() {
+	                beginIt();
+	            });
+	        }
+	    }
+
+	    function getChar(event) {
+	        if (event.which == null) {
+	            return String.fromCharCode(event.keyCode); // IE
+	        } else if (event.which != 0 && event.charCode != 0) {
+	            return String.fromCharCode(event.which); // the rest
+	        } else {
+	            return null; // special key
+	        }
+	    }
+
+	    $my.keydown(function(event) {
+	        if (event.keyCode == 8) {
+	            event.preventDefault();
+	        }
+	    });
+
+	    $my.keypress(function(event) {
+	        var char = getChar(event || window.event);
+	        var currentPos = $given.val();
+	        var currentChar = $my.val();
+	        x = currentChar.length;
+	        typeStepTwo = new Date().getTime();
+	        var timeBetweenPress = typeStepTwo - typeStepOne;
+
+	        if ((timeBetweenPress / 1000) > 5) {
+	            startTyping = startTyping + timeBetweenPress;
+	            timeBetweenPress = 0;
+	            typeStepOne = typeStepTwo;
+	        };
+
+	        if (char !== currentPos[x]) {
+	            errors = errors + 1;
+	            keyPresses = keyPresses + 1;
+	            errSound.play();
+	            $('#errorContainer').show();
+	            $('#errorContainer').fadeOut("slow");
+	            return false;
+	        } else if (x == currentPos.length - 1) {
+	            var currentDiv = currentPos.split("");
+	            keyPresses = keyPresses + 1;
+	            container.html(currentDiv);
+	        } else {
+	            keyPresses = keyPresses + 1;
+	            rightPresses = rightPresses + 1;
+	            var currentDiv = currentPos.split("");
+	            currentDiv[x + 1] = "<span class='currentLetter light-green'>" + currentDiv[x + 1] + "</span>";
+	            container.html(currentDiv);
+	        }
+	    });
+
+	    document.getElementById('my').onkeyup = function(event) {
+	        typeStepOne = new Date().getTime();
+	        var currentPos = $given.val();
+	        var currentChar = $my.val();
+	        if (currentChar == currentPos || currentChar.length > currentPos.length) {
+	            stopIt();
+	        };
+	    }
+
+	    function beginIt() {
+	        $('#resultsOfType').hide();
+	        $('#testArea').show();
+	        errors = 0;
+	        keyPresses = 0;
+	        rightPresses = 0;
+	        words = 60;
+	        msg = text.split('');
+	        var msgType = "";
+	        for (i = 0; i < words; i++) {
+	            msgType += msg[Math.floor(Math.random() * (msg.length - 1))];
+	        };
+	        msgLength = msgType.length;
+	        msgType = msgType.slice(0, msgLength - 1);
+	        var currentDiv = msgType.split("");
+	        currentDiv[0] = "<span class='currentLetter light-green'>" + currentDiv[0] + "</span>";
+	        container.html(currentDiv);
+	        startTyping = new Date().getTime();
+	        typeStepOne = new Date().getTime();
+	        $given.val(msgType);
+	        $my.val("");
+	        $my.focus().select();
+	    };
+
+	   
+	    $("#toggleLanguage").on("click", function () {
+	    	if ($("#selectedLanguage").text() === "английском") {
+	    		text = text_ru;
+	    		$("#selectedLanguage").text("русском");
+				$("#antiSelectedLanguage").text("английском");
+				$("#results4").text("русский");
+	    	} else {
+	    		text = text_en;
+	    		$("#selectedLanguage").text("английском");
+				$("#antiSelectedLanguage").text("русском");
+				$("#results4").text("английский");
+	    	}
+	    	beginIt();
+	    });
+
+	    beginIt();
+
+	});
+</script>
+
+</body>
+</html>
