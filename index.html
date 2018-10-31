@@ -8,30 +8,34 @@
 
 <div class="container type-speed-test-page">
    <h1>&nbsp;</h1>
-    <h1 class="center">Тестирование скорости набора на <span id="selectedLanguage">русском</span> языке</h1>
-    <div class="center"><button class="btn" id="toggleLanguage">Пройти на <span id="antiSelectedLanguage">английском</span> языке</button></div>
+    <h1 class="center">Тестування швидкості набору <span id="selectedLanguage">українською</span> мовою</h1>
+    <div class="center">
+    	<button class="btn hidden toggleLanguage" data-lang="ukrainian">Пройти українською</button>
+    	<button class="btn toggleLanguage" data-lang="english">Пройти англійською</button>
+    	<button class="btn toggleLanguage" data-lang="russian">Пройти російською</button>
+    </div>
 
     <div id="testWelcome">
         <p>
-            Скорость набора текста очень сильно влияет на скорость обучения. Быстро писать код - это круто.
-            Поэтому предлагаем вам проверить свою скорость.
-            Мы сгенерируем вам текст на выбранном языке.
+        	Ми віримо, що швидкість набору сильно впливає на швидкість навчання. Швидко писати код &mdash; це круто!<br>
+            Тому ми пропонуємо вам перевірити свою швидкість. <br>
+            Ми сгенеруємо текст обраною мовою. <br>
         </p>
     </div>
 
 
     <div id="resultsOfType" class="hidden">
-        <p>Нажатий на клавиши: <span class='typeresults' id="results1"></span></p>
-        <p>Допущено ошибок: <span class='typeresults' id="results2"></span></p>
-        <p>Знаков в минуту: <span class='typeresults' id="results3"></span></p>
-        <p>Выбранный язык: <span class="typeresults" id="results4">русский</span></p>
-        <button id="next" class='btn green'>Попробовать ещё раз</button>
+        <p>Натисків на клавіші: <span class='typeresults' id="results1"></span></p>
+        <p>Допущено помилок: <span class='typeresults' id="results2"></span></p>
+        <p>Знаків за хвилину: <span class='typeresults' id="results3"></span></p>
+        <p>Обрана мова: <span class="typeresults" id="results4">українська</span></p>
+        <button id="next" class='btn green'>Спробувати ще раз</button>
     </div>
 
     <div id="testArea">
         <div class="error-input-block">
             <div class="typetest-error-block">
-                <div id="errorContainer" class="hidden">Ошибка</div>
+                <div id="errorContainer" class="hidden">Помилка</div>
             </div>
             <div class="input-block">
                 <input name="given" type="hidden" id="given">
@@ -42,14 +46,14 @@
     </div>
 
     <div id="cheatMsg" class="hidden">
-        <p>Мы настоятельно рекомендуем пройти этот тест честным путем. Попробуйте ещё раз!</p>
-        <button class='btn green' id="b1">НАЧАТЬ</button>
+        <p>Ми рекомендуємо проходити тестування чесно. Спробуйте ще раз!</p>
+        <button class='btn green' id="b1">ПОЧАТИ</button>
     </div>
 
     <div id="finalScore" class="hidden">
-        <p style="margin-top: 50px;"> Результат скорости набора (среднее значение из 3 попыток): <span class='typeresults' id="finalRezult1"></span></p>
-        <p>Среднее значение по количеству допущенных ошибок: <span class='typeresults' id="finalRezult2"></span></p>
-        <p>Спасибо!</p>
+        <p style="margin-top: 50px;"> Результат швидкості набору (середнє значення з 3 спроб): <span class='typeresults' id="finalRezult1"></span></p>
+        <p>Середнє значення по кількості допущених помилок: <span class='typeresults' id="finalRezult2"></span></p>
+        <p>Дякуємо!</p>
     </div>
 </div>
 
@@ -62,8 +66,9 @@
 	    var keyPresses = 0;
 	    var rightPresses = 0;
 	    var text_en = "1234567890-=qw ertyuiop[]asdfghjkl;'zxcvbnm,./!@#$%^&*()_+{}:\"<>?";
-	    var text_ru = "йцукенгшщзхфывапр олджэячсмитьбю1234567890-=.!\";%:?*()_+,"
-	    var text = text_ru;
+	    var text_ru = "йцукенгшщзхфывапр олджэячсмитьбю1234567890-=.!\";%:?*()_+,";
+	    var text_ua = "'1234567890-=йцукенгшщзхїфівапролджєячсмитьбю.!\"№;%:?*()_+/,";
+	    var text = text_ua;
 	    var finalSpeed = [];
 	    var finalErrors = [];
 	    var $my = $("#my");
@@ -180,17 +185,25 @@
 	    };
 
 	   
-	    $("#toggleLanguage").on("click", function () {
-	    	if ($("#selectedLanguage").text() === "английском") {
+	    $(".toggleLanguage").on("click", function (e) {
+	    	var newLang = e.target.dataset.lang
+	    	$("[data-lang].hidden").removeClass("hidden");
+	    	$("[data-lang="+newLang+"]").addClass("hidden");
+	    	console.log(newLang)
+	    	if (newLang === "russian") {
 	    		text = text_ru;
-	    		$("#selectedLanguage").text("русском");
-				$("#antiSelectedLanguage").text("английском");
-				$("#results4").text("русский");
-	    	} else {
+	    		$("#selectedLanguage").text("російською");
+				$("#results4").text("російська");
+	    	} else if (newLang === "english") {
 	    		text = text_en;
-	    		$("#selectedLanguage").text("английском");
-				$("#antiSelectedLanguage").text("русском");
-				$("#results4").text("английский");
+	    		$("#selectedLanguage").text("англійською");
+				$("#antiSelectedLanguage").text("російською");
+				$("#results4").text("англійська");
+	    	} else {
+	    		text = text_ua;
+	    		$("#selectedLanguage").text("українською");
+				$("#antiSelectedLanguage").text("російською");
+				$("#results4").text("українська");
 	    	}
 	    	beginIt();
 	    });
